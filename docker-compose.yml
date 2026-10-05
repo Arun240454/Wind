@@ -1,0 +1,16 @@
+# Fixed project name so the database volume (windsliter_pgdata) doesn't depend on the folder name.
+name: windsliter
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: windsliter
+      POSTGRES_PASSWORD: windsliter
+      POSTGRES_DB: windsliter
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:

@@ -1,0 +1,218 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Auth.js ----------
+
+model User {
+  id            String    @id @default(cuid())
+  email         String?   @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  username      String?   @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts     Account[]
+  sessions     Session[]
+  profile      Profile?
+  resumes      Resume[]
+  coverLetters CoverLetter[]
+  importLogs   ImportLog[]
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+// ---------- Career profile ----------
+
+model Profile {
+  id                String  @id @default(cuid())
+  userId            String  @unique
+  headline          String  @default("")
+  summary           String  @default("")
+  location          String  @default("")
+  phone             String  @default("")
+  website           String  @default("")
+  theme             String  @default("classic") // classic | modern
+  isPublic          Boolean @default(false)
+  unlisted          Boolean @default(false)
+  sectionVisibility Json    @default("{}")
+  updatedAt         DateTime @updatedAt
+
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  experiences    Experience[]
+  educations     Education[]
+  skills         Skill[]
+  certifications Certification[]
+  projects       Project[]
+}
+
+model Experience {
+  id         String    @id @default(cuid())
+  profileId  String
+  company    String
+  title      String
+  location   String    @default("")
+  startMonth String    @default("") // YYYY-MM or YYYY
+  endMonth   String? // null = Present
+  bullets    String[]
+  sortOrder  Int       @default(0)
+  source     String    @default("manual") // manual | linkedin_export
+  editedAt   DateTime?
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+}
+
+model Education {
+  id         String    @id @default(cuid())
+  profileId  String
+  school     String
+  degree     String    @default("")
+  field      String    @default("")
+  startMonth String    @default("")
+  endMonth   String?
+  notes      String    @default("")
+  sortOrder  Int       @default(0)
+  source     String    @default("manual")
+  editedAt   DateTime?
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+}
+
+model Skill {
+  id        String    @id @default(cuid())
+  profileId String
+  name      String
+  category  String    @default("")
+  sortOrder Int       @default(0)
+  source    String    @default("manual")
+  editedAt  DateTime?
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+}
+
+model Certification {
+  id          String    @id @default(cuid())
+  profileId   String
+  name        String
+  issuer      String    @default("")
+  issuedMonth String    @default("")
+  url         String    @default("")
+  sortOrder   Int       @default(0)
+  source      String    @default("manual")
+  editedAt    DateTime?
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+}
+
+model Project {
+  id          String    @id @default(cuid())
+  profileId   String
+  title       String
+  description String    @default("")
+  url         String    @default("")
+  imageUrl    String    @default("")
+  tags        String[]
+  sortOrder   Int       @default(0)
+  source      String    @default("manual")
+  editedAt    DateTime?
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+}
+
+// ---------- Documents ----------
+
+model Resume {
+  id         String   @id @default(cuid())
+  userId     String
+  name       String
+  template   String   @default("classic")
+  selections Json     @default("{}") // { experienceIds?: string[], bulletOrder?: Record<id, number[]>, ... }
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model CoverLetter {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  templateKey String   @default("concise")
+  content     Json // TipTap document
+  fields      Json     @default("{}") // { company, role, hiringManager }
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ImportLog {
+  id        String   @id @default(cuid())
+  userId    String
+  source    String
+  fileName  String
+  counts    Json
+  status    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}

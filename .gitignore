@@ -1,0 +1,13 @@
+node_modules/
+.next/
+.next-e2e/
+out/
+.env
+.env.local
+.dev-mail/
+coverage/
+playwright-report/
+test-results/
+next-env.d.ts
+*.tsbuildinfo
+tests/fixtures/linkedin-export.zip
