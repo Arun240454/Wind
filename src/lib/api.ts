@@ -1,33 +1,30 @@
 import { NextResponse } from 'next/server';
-import { ZodError, type ZodTypeAny, type z } from 'zod';
-import { auth } from '@/lib/auth';
+import { ZodError } from 'zod/v4';
 
 export class ApiError extends Error {
   constructor(
     public status: number,
     public code: string,
-    message: string,
-    public fields?: Record<string, string[] | undefined>
+    message: string
   ) {
     super(message);
   }
 }
 
-export const notFound = (what = 'Resource') => new ApiError(404, 'NOT_FOUND', `${what} not found.`);
-
-/** Wraps a route handler so every error leaves in the same `{ error: { code, message, fields } }` shape. */
-export function handle<C>(fn: (req: Request, ctx: C) => Promise<Response>) {
-  return async (req: Request, ctx: C): Promise<Response> => {
+/** Wraps a route handler so every error leaves in the same `{ error: { code, message } }` shape. */
+export function handle(fn: (req: Request) => Promise<Response>) {
+  return async (req: Request): Promise<Response> => {
     try {
-      return await fn(req, ctx);
+      return await fn(req);
     } catch (err) {
       if (err instanceof ApiError) {
-        return NextResponse.json({ error: { code: err.code, message: err.message, fields: err.fields } }, { status: err.status });
+        return NextResponse.json({ error: { code: err.code, message: err.message } }, { status: err.status });
       }
       if (err instanceof ZodError) {
-        const flat = err.flatten();
+        const first = err.issues[0];
+        const where = first?.path.length ? `${first.path.join('.')}: ` : '';
         return NextResponse.json(
-          { error: { code: 'VALIDATION_FAILED', message: flat.formErrors[0] ?? 'Some fields are invalid.', fields: flat.fieldErrors } },
+          { error: { code: 'VALIDATION_FAILED', message: `${where}${first?.message ?? 'Some fields are invalid.'}` } },
           { status: 400 }
         );
       }
@@ -37,21 +34,9 @@ export function handle<C>(fn: (req: Request, ctx: C) => Promise<Response>) {
   };
 }
 
-/** Every query in a handler is scoped by the id this returns, never by an id from the request body. */
-export async function requireUser() {
-  const session = await auth();
-  if (!session?.user?.id) throw new ApiError(401, 'UNAUTHENTICATED', 'Please sign in.');
-  return session.user;
-}
-
-export async function readJson<S extends ZodTypeAny>(req: Request, schema: S): Promise<z.output<S>> {
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    throw new ApiError(400, 'BAD_JSON', 'Request body must be JSON.');
-  }
-  return schema.parse(body);
+/** Best-effort client key for rate limiting; behind a proxy the first forwarded address wins. */
+export function clientKey(req: Request): string {
+  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || 'local';
 }
 
 export function fileResponse(buffer: Buffer, fileName: string, contentType: string) {

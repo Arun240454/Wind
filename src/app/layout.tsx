@@ -2,9 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: { default: 'WindSliter – LinkedIn portfolio and ATS resume', template: '%s · WindSliter' },
-  description: 'Turn your LinkedIn profile into a portfolio site, an ATS-ready resume and a cover letter in minutes.',
-  metadataBase: new URL(process.env.AUTH_URL ?? 'http://localhost:3000'),
+  title: 'WindSliter – AI career summary and cover letter',
+  description: 'Upload your LinkedIn profile or resume and get an AI-written career summary and cover letter to download.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
