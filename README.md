@@ -23,7 +23,7 @@ Get a key at https://platform.claude.com/settings/keys.
 | ZIP | LinkedIn → Settings → Data privacy → **Get a copy of your data**. Only the career CSVs are read (Profile, Positions, Education, Skills, Certifications…). Messages and connections are ignored. |
 | .txt / .md | Plain-text resume |
 
-Limit: 10 MB per file. You can also give a company, role and job description to tailor the cover letter.
+Limit: 4 MB per file (Vercel caps request bodies at 4.5 MB). You can also give a company, role and job description to tailor the cover letter.
 
 ## API
 

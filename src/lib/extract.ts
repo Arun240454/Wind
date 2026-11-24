@@ -3,7 +3,8 @@ import JSZip from 'jszip';
 import mammoth from 'mammoth';
 import { ApiError } from '@/lib/api';
 
-export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+// Vercel rejects request bodies over 4.5 MB before they reach the app, so stay under that.
+export const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 const MAX_TEXT_CHARS = 200_000;
 const MAX_ZIP_ENTRIES = 300;
 
@@ -41,7 +42,7 @@ const bad = (message: string) => new ApiError(400, 'UNSUPPORTED_FILE', message);
  */
 export async function fileToContent(file: File): Promise<Block[]> {
   if (file.size === 0) throw bad('The file is empty.');
-  if (file.size > MAX_UPLOAD_BYTES) throw bad('The file is larger than 10 MB.');
+  if (file.size > MAX_UPLOAD_BYTES) throw bad('The file is larger than 4 MB.');
 
   const name = file.name.toLowerCase();
   const bytes = Buffer.from(await file.arrayBuffer());

@@ -39,6 +39,8 @@ export function Generator() {
   async function onGenerate(e: React.FormEvent) {
     e.preventDefault();
     if (!file) return setError('Choose a file first.');
+    // Matches MAX_UPLOAD_BYTES on the server; checked here because the host rejects larger bodies first.
+    if (file.size > 4 * 1024 * 1024) return setError('The file is larger than 4 MB.');
     setError('');
     setBusy(true);
     setElapsed(0);
@@ -105,7 +107,7 @@ export function Generator() {
         ) : (
           <>
             <p className="font-semibold">Drop your LinkedIn profile or resume here</p>
-            <p className="muted mt-1 text-sm">PDF, Word (.docx), text, or LinkedIn data export (.zip) · up to 10 MB</p>
+            <p className="muted mt-1 text-sm">PDF, Word (.docx), text, or LinkedIn data export (.zip) · up to 4 MB</p>
           </>
         )}
       </div>
