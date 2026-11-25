@@ -11,7 +11,7 @@ export function letterDate(now = new Date()): string {
 }
 
 /** "Ada Lovelace" → "Ada-Lovelace-Cover-Letter.pdf" */
-export function exportFileName(name: string, kind: 'Summary' | 'Cover-Letter', ext: 'pdf' | 'docx'): string {
+export function exportFileName(name: string, ext: 'pdf' | 'docx'): string {
   const base = name
     .normalize('NFKD')
     .replace(/[^\w\s-]/g, '')
@@ -19,5 +19,5 @@ export function exportFileName(name: string, kind: 'Summary' | 'Cover-Letter', e
     .split(/\s+/)
     .filter(Boolean)
     .join('-');
-  return `${base || 'WindSliter'}-${kind}.${ext}`;
+  return `${base || 'WindSliter'}-Cover-Letter.${ext}`;
 }

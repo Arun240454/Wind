@@ -8,13 +8,13 @@ export default function Home() {
           Wind<span className="text-brand">Sliter</span>
         </h1>
         <p className="muted mx-auto mt-3 max-w-xl">
-          Upload your LinkedIn profile or resume. AI reads it and gives you a career summary and a cover letter, ready to
-          download as PDF or Word.
+          Upload your LinkedIn profile or resume and AI writes your cover letter. Add the company, hiring manager and job
+          description to tailor it. Download as PDF or Word.
         </p>
       </header>
       <Generator />
       <p className="muted mt-8 text-center text-xs">
-        Your file is read in memory, sent to the AI to generate the documents, and never stored.
+        Your file is read in memory, sent to the AI to write the letter, and never stored.
       </p>
     </main>
   );
