@@ -1,6 +1,6 @@
 # WindSliter
 
-Upload a LinkedIn profile or resume and get an AI-written **career summary** and **cover letter**, ready to download as PDF or Word. No account, no database: the file is read in memory, sent to Claude, and nothing is stored.
+Upload a LinkedIn profile or resume and get an AI-written **cover letter**, ready to download as PDF or Word. No account, no database: the file is read in memory, sent to Claude, and nothing is stored.
 
 ## Run it
 
@@ -23,14 +23,14 @@ Get a key at https://platform.claude.com/settings/keys.
 | ZIP | LinkedIn → Settings → Data privacy → **Get a copy of your data**. Only the career CSVs are read (Profile, Positions, Education, Skills, Certifications…). Messages and connections are ignored. |
 | .txt / .md | Plain-text resume |
 
-Limit: 4 MB per file (Vercel caps request bodies at 4.5 MB). You can also give a company, role and job description to tailor the cover letter.
+Limit: 4 MB per file (Vercel caps request bodies at 4.5 MB). Three optional fields tailor the letter: **company name**, **hiring manager's name** and **job description**. Whichever ones you fill in are added to the AI prompt; left blank, you get a general letter.
 
 ## API
 
 | Method | Path | Body | Returns |
 |---|---|---|---|
-| POST | `/api/generate` | multipart: `file`, optional `company`, `role`, `jobDescription` | JSON result (candidate, summary, coverLetter) |
-| POST | `/api/download` | JSON: `{ kind: "summary" \| "cover-letter", format: "pdf" \| "docx", result }` | The file |
+| POST | `/api/generate` | multipart: `file`, optional `company`, `hiringManager`, `jobDescription` | JSON result (candidate, coverLetter) |
+| POST | `/api/download` | JSON: `{ format: "pdf" \| "docx", result }` | The file |
 
 Errors are always `{ error: { code, message } }`. Both routes are rate-limited per IP (in memory, per instance).
 
